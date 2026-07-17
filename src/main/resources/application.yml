@@ -44,3 +44,16 @@ logging:
 #files
 upload:
   dir: "D:/chatop-files"
+
+springdoc:
+  api-docs:
+    path: /api-docs
+    version: openapi_3_1
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    config-url: /api/api-docs/swagger-config
+    url: /api/api-docs
+    persist-authorization: true
+  show-actuator: false
+  packages-to-scan: com.openclassroom.chatopapi
