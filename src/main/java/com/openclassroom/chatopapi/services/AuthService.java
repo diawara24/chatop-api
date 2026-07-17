@@ -7,6 +7,7 @@ import com.openclassroom.chatopapi.model.User;
 import com.openclassroom.chatopapi.record.AuthResponse;
 import com.openclassroom.chatopapi.utils.JWTTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,12 +26,10 @@ public class AuthService {
 
     private final JWTTokenProvider jwtTokenProvider;
 
+    private final ModelMapper modelMapper;
+
     public AuthResponse register(RegisterUserDto dto) {
-        User user = User.builder()
-                .name(dto.getName())
-                .email(dto.getEmail())
-                .password(dto.getPassword())
-                .build();
+        User user =  modelMapper.map(dto, User.class);
 
         User saved = userService.save(user);
 
