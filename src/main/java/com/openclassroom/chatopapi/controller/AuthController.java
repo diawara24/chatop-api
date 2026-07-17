@@ -3,14 +3,12 @@ package com.openclassroom.chatopapi.controller;
 
 import com.openclassroom.chatopapi.dto.AuthRequest;
 import com.openclassroom.chatopapi.dto.RegisterUserDto;
+import com.openclassroom.chatopapi.dto.UserDto;
 import com.openclassroom.chatopapi.record.AuthResponse;
 import com.openclassroom.chatopapi.services.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -30,5 +28,10 @@ public class AuthController {
         return ResponseEntity.ok(
                 authService.login(request)
         );
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> getLoggedUser(){
+        return ResponseEntity.ok(authService.getLoggedUser());
     }
 }

@@ -5,11 +5,14 @@ import com.openclassroom.chatopapi.dto.RegisterUserDto;
 import com.openclassroom.chatopapi.dto.UserDto;
 import com.openclassroom.chatopapi.model.User;
 import com.openclassroom.chatopapi.record.AuthResponse;
+import com.openclassroom.chatopapi.repository.UserRepository;
 import com.openclassroom.chatopapi.utils.JWTTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -28,6 +31,8 @@ public class AuthService {
 
     private final ModelMapper modelMapper;
 
+    private final UserRepository userRepository;
+
     public AuthResponse register(RegisterUserDto dto) {
         User user =  modelMapper.map(dto, User.class);
 
@@ -39,6 +44,13 @@ public class AuthService {
     }
 
     public AuthResponse login(AuthRequest request) {
+
+        if(request.getEmail() == null || request.getPassword() == null) {
+
+            throw new IllegalArgumentException(
+                    "Email et mot de passe obligatoires"
+            );
+        }
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -48,6 +60,17 @@ public class AuthService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         String token = jwtTokenProvider.generateToken(userDetails);
         return new AuthResponse(token);
+    }
+
+    public UserDto getLoggedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        User loggedUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'email: " + email));
+
+        return modelMapper.map(loggedUser, UserDto.class);
     }
 
 }

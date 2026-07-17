@@ -1,6 +1,5 @@
 package com.openclassroom.chatopapi.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,35 +9,34 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "messages")
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String name;
-    private String email;
-    private String password;
+
+    @Column(length = 2000)
+    private String message;
 
     @CreationTimestamp
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
     @UpdateTimestamp
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("name ASC")
-    @Builder.Default
-    private List<Rental> rentals = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @OneToMany(mappedBy = "user")
-    @OrderBy("createdAt ASC")
-    @Builder.Default
-    private List<Message> messages = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "rental_id", nullable = false)
+    private Rental rental;
 }
