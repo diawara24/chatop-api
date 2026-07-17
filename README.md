@@ -635,17 +635,8 @@ mvn test
 - [JWT.io](https://jwt.io) - Comprendre les JWT
 - [SpringDoc OpenAPI](https://springdoc.org)
 
-## Support
-
-Pour toute question ou support technique, contactez l'équipe de support :
-- Email : support-technique@email.fr
-
-## Licence
-
-Ce projet est propriétaire - Openclassroom 2024
-
 ---
 
-**Dernière mise à jour** : 17 Juillet 2024  
+**Dernière mise à jour** : 17 Juillet 2026 
 **Version API** : 1.0.0  
 **Statut** : En développement
