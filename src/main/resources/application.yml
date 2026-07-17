@@ -1,4 +1,7 @@
 spring:
+  mvc:
+    servlet:
+      path: /api
   application:
     name: chatop-api
   datasource:
@@ -18,6 +21,9 @@ spring:
 server:
   port: ${SERVER_PORT}
 
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
 
 
 #Log level configuration
@@ -34,4 +40,3 @@ logging:
             sql: TRACE
       springframework:
         security: DEBUG
-
