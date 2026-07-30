@@ -1,6 +1,8 @@
 package com.openclassroom.chatopapi.services.impl;
 
 import com.openclassroom.chatopapi.dto.UserDto;
+import com.openclassroom.chatopapi.exception.domaines.NotFoundException;
+import com.openclassroom.chatopapi.exception.domaines.UserExistException;
 import com.openclassroom.chatopapi.model.User;
 import com.openclassroom.chatopapi.repository.UserRepository;
 import com.openclassroom.chatopapi.services.UserService;
@@ -16,6 +18,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+
+import static com.openclassroom.chatopapi.constantes.ErrorConstant.EMAIL_EXIST;
+import static com.openclassroom.chatopapi.constantes.ErrorConstant.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +39,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         Optional<User> user = repository.findByEmail(email);
         if (user.isEmpty()) {
             LOGGER.error("Utilisateur non trouvé par email: " + email);
-            throw new UsernameNotFoundException("Utilisateur non trouvé par email:  " + email);
+            throw new UsernameNotFoundException(
+                    String.format(USER_NOT_FOUND,
+                            email
+                    )
+            );
         } else {
             return new UserPrincipal(user.get());
         }
@@ -43,7 +52,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     @Override
     public User save(User user) {
         if(repository.findByEmail(user.getEmail()).isPresent()){
-            throw new RuntimeException("Email Exist déjà");
+            throw new UserExistException(
+                    String.format(EMAIL_EXIST,
+                            user.getEmail()
+                    )
+            );
         }
         user.setPassword(encodePassword(user.getPassword()));
         return repository.save(user);
@@ -54,7 +67,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         Optional<User> user = repository.findById(id);
         if (user.isEmpty()) {
             LOGGER.error("Utilisateur non trouvé par l'id: " + id);
-            throw new UsernameNotFoundException("Utilisateur non trouvé par l'id :  " + id);
+            throw new NotFoundException(
+                    String.format(USER_NOT_FOUND,
+                            id
+                    )
+            );
         }
         return mapper.map(user.get(), UserDto.class);
     }

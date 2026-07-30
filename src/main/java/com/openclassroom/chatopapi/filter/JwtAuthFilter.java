@@ -4,6 +4,7 @@ package com.openclassroom.chatopapi.filter;
 import com.openclassroom.chatopapi.utils.JWTTokenProvider;
 
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 
@@ -11,6 +12,7 @@ import jakarta.servlet.http.*;
 import lombok.RequiredArgsConstructor;
 
 
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -26,6 +28,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static com.openclassroom.chatopapi.constantes.SecurityConstant.INCORRECT_CREDENTIALS;
 
 
 @Component
@@ -54,11 +57,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
 
         try {
+
             String email = jwtTokenProvider.extractUsername(token);
 
-            if(email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if(email != null &&
+                    SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                UserDetails userDetails =
+                        userDetailsService.loadUserByUsername(email);
 
                 if(jwtTokenProvider.validateToken(token, userDetails)) {
 
@@ -69,24 +75,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     userDetails.getAuthorities()
                             );
 
-
                     authentication.setDetails(
                             new WebAuthenticationDetailsSource()
                                     .buildDetails(request)
                     );
 
-
-                    SecurityContextHolder
-                            .getContext()
+                    SecurityContextHolder.getContext()
                             .setAuthentication(authentication);
-
                 }
-
             }
 
+        }
+        catch (JwtException | IllegalArgumentException e){
 
-        } catch (Exception e){
             SecurityContextHolder.clearContext();
+
+            throw new BadCredentialsException(INCORRECT_CREDENTIALS);
         }
 
         filterChain.doFilter(request, response);

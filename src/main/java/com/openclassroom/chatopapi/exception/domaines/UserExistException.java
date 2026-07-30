@@ -1,0 +1,7 @@
+package com.openclassroom.chatopapi.exception.domaines;
+
+public class UserExistException extends RuntimeException{
+    public UserExistException(String message) {
+        super(message);
+    }
+}

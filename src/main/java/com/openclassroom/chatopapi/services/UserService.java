@@ -5,7 +5,6 @@ import com.openclassroom.chatopapi.model.User;
 
 public interface UserService {
      User save(User user);
-
      UserDto findById(Integer id);
 
 }

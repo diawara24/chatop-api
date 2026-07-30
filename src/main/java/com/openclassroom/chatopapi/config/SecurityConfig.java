@@ -1,5 +1,7 @@
 package com.openclassroom.chatopapi.config;
 
+import com.openclassroom.chatopapi.filter.CustomAccessDeniedHandler;
+import com.openclassroom.chatopapi.filter.CustomAuthenticationEntryPoint;
 import com.openclassroom.chatopapi.filter.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 
@@ -24,12 +26,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static com.openclassroom.chatopapi.constantes.SecurityConstant.PUBLIC_URLS;
+
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     private final JwtAuthFilter jwtAuthFilter;
 
@@ -43,17 +51,16 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
 
+                .exceptionHandling( e -> e
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                )
+
+
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/auth/**",
-                                "/uploads/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/api-docs/**"
-                        )
+                        .requestMatchers(PUBLIC_URLS)
                         .permitAll()
 
                         .anyRequest().authenticated()

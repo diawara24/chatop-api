@@ -4,6 +4,7 @@ import com.openclassroom.chatopapi.dto.CreateRentalDto;
 import com.openclassroom.chatopapi.dto.RentalDto;
 import com.openclassroom.chatopapi.dto.RentalListResponse;
 import com.openclassroom.chatopapi.dto.UpdateRentalDto;
+import com.openclassroom.chatopapi.exception.domaines.NotFoundException;
 import com.openclassroom.chatopapi.model.Rental;
 import com.openclassroom.chatopapi.model.User;
 import com.openclassroom.chatopapi.record.RentalUpSertResponse;
@@ -23,8 +24,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
+
+
+import static com.openclassroom.chatopapi.constantes.ErrorConstant.*;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +57,11 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public RentalDto findById(Integer id) {
         Rental rental = rentalRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Location non trouvé avec l'id: " + id));
+                .orElseThrow(() -> new NotFoundException(
+                        String.format(RENTAL_NOT_FOUND,
+                               id
+                        )
+                ));
         RentalDto dto =  mapper.map(rental, RentalDto.class);
         dto.setOwnerId(rental.getUser().getId());
         return dto;
@@ -68,7 +75,11 @@ public class RentalServiceImpl implements RentalService {
         String email = authentication.getName();
 
         User owner = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'email: " + email));
+                .orElseThrow(() -> new NotFoundException(
+                        String.format(USER_NOT_FOUND,
+                                email
+                        )
+                ));
 
         Rental rental = Rental.builder()
                 .name(dto.getName())
@@ -90,7 +101,11 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public RentalUpSertResponse update(Integer id, UpdateRentalDto dto) {
         Rental rental = rentalRepository.findById(id)
-                        .orElseThrow(() -> new RuntimeException("Location non trouvé avec l'id " + id));
+                        .orElseThrow(() -> new NotFoundException(
+                                String.format(RENTAL_NOT_FOUND,
+                                        id
+                                )
+                        ));
 
         rental.setName(dto.getName());
 

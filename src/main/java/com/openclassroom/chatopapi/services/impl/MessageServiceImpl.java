@@ -1,6 +1,7 @@
 package com.openclassroom.chatopapi.services.impl;
 
 import com.openclassroom.chatopapi.dto.MessageRequestDto;
+import com.openclassroom.chatopapi.exception.domaines.NotFoundException;
 import com.openclassroom.chatopapi.model.Message;
 import com.openclassroom.chatopapi.model.Rental;
 import com.openclassroom.chatopapi.model.User;
@@ -11,6 +12,8 @@ import com.openclassroom.chatopapi.repository.UserRepository;
 import com.openclassroom.chatopapi.services.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import static com.openclassroom.chatopapi.constantes.ErrorConstant.*;
 
 @Service
 @RequiredArgsConstructor
@@ -23,13 +26,21 @@ public class MessageServiceImpl implements MessageService {
     private final UserRepository userRepository;
 
     @Override
-    public MessageResponse send(MessageRequestDto message) {
+    public MessageResponse send(MessageRequestDto message) throws NotFoundException {
 
         Rental rental = rentalRepository.findById(message.getRentalId())
-                .orElseThrow(() -> new RuntimeException("Location non trouvé avec l'id: " + message.getRentalId()));
+                .orElseThrow(() -> new NotFoundException(
+                        String.format(RENTAL_NOT_FOUND,
+                                message.getRentalId()
+                        )
+                ));
 
         User user = userRepository.findById(message.getUserId())
-                .orElseThrow(() -> new RuntimeException("User non trouvé avec l'id: " + message.getUserId()));
+                .orElseThrow(() -> new NotFoundException(
+                        String.format(USER_NOT_FOUND,
+                                message.getUserId()
+                        )
+                ));
 
         Message msg = Message.builder()
                 .message(message.getMessage())
