@@ -1,6 +1,7 @@
 package com.openclassroom.chatopapi.exception;
 
 
+import com.openclassroom.chatopapi.exception.domaines.NotAnImageFileException;
 import com.openclassroom.chatopapi.exception.domaines.NotFoundException;
 import com.openclassroom.chatopapi.exception.domaines.UserExistException;
 import com.openclassroom.chatopapi.utils.HttpResponse;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Objects;
 
 import static com.openclassroom.chatopapi.constantes.SecurityConstant.*;
@@ -61,8 +61,13 @@ public class GlobalExceptionHandler implements ErrorController {
     }
 
     @ExceptionHandler(IOException.class)
-    public ResponseEntity<HttpResponse> iOException() {
-        return createHttpResponse(INTERNAL_SERVER_ERROR, ERROR_PROCESSING_FILE);
+    public ResponseEntity<HttpResponse> iOException(IOException exception) {
+        return createHttpResponse(INTERNAL_SERVER_ERROR, exception.getMessage() );
+    }
+
+    @ExceptionHandler(NotAnImageFileException.class)
+    public ResponseEntity<HttpResponse> notAnImageFileException(NotAnImageFileException exception) {
+        return createHttpResponse(BAD_REQUEST, exception.getMessage());
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
@@ -80,6 +85,8 @@ public class GlobalExceptionHandler implements ErrorController {
     public ResponseEntity<HttpResponse> userExistException(NotFoundException exception) {
         return createHttpResponse(CONFLICT, exception.getMessage());
     }
+
+
 
 
     private ResponseEntity<HttpResponse> createHttpResponse(HttpStatus httpStatus, String message) {

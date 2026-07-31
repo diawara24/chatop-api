@@ -29,7 +29,7 @@ public class CreateRentalDto {
     @Size(max = 2000)
     private String description;
 
-    @NotNull
+    @NotNull( message = "La photo est obligatoire")
     private MultipartFile picture;
 
 }

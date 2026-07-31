@@ -10,6 +10,7 @@ import com.openclassroom.chatopapi.model.User;
 import com.openclassroom.chatopapi.record.RentalUpSertResponse;
 import com.openclassroom.chatopapi.repository.RentalRepository;
 import com.openclassroom.chatopapi.repository.UserRepository;
+import com.openclassroom.chatopapi.services.FileService;
 import com.openclassroom.chatopapi.services.RentalService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -35,6 +36,8 @@ public class RentalServiceImpl implements RentalService {
 
     @Value("${upload.dir}")
     private String uploadDir;
+
+    private final FileService fileService;
 
     private final RentalRepository rentalRepository;
 
@@ -87,7 +90,7 @@ public class RentalServiceImpl implements RentalService {
                 .price(dto.getPrice())
                 .description(dto.getDescription())
                 .picture(
-                        savePicture(dto.getName(), dto.getPicture())
+                        fileService.savePicture(dto.getName(), dto.getPicture())
                 )
 
                 .user(owner)
@@ -122,20 +125,5 @@ public class RentalServiceImpl implements RentalService {
         return new RentalUpSertResponse(
                 "Rental updated !"
         );
-    }
-
-    private String savePicture(String rentalName, MultipartFile picture) throws Exception {
-
-        String fileName =  picture.getOriginalFilename();
-        String relativePath = rentalName + "/" + fileName;
-        Path fullPath = Paths.get(uploadDir, relativePath);
-
-        try {
-            Files.createDirectories(fullPath.getParent());
-            picture.transferTo(fullPath.toFile());
-        } catch (IOException e) {
-            throw new Exception("Erreur lors de l'enregistrement de la photo", e);
-        }
-        return "/api/uploads/" + relativePath;
     }
 }
